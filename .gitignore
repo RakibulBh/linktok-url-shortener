@@ -1,0 +1,8 @@
+# Add all the go and nextjs related gitignore
+
+# Go
+bin/
+.env
+
+# NextJS
+node_modules/

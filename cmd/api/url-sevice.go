@@ -48,9 +48,13 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if a URL already exists then just return
+	// if a URL already exists then redirect to the redirectURL from db
 	if exists {
-		// TODO redirect to an existing URL
+		redirectUrl, err := app.store.URLS.GetRedirectURL(ctx, checksumHex)
+		if err != nil {
+			app.errorJSON(w, err, http.StatusInternalServerError, err.Error())
+		}
+		http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
 		return
 	}
 
@@ -61,7 +65,7 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Encode the id base62
+	// Encode the id base62 to make it shorter and less guessable
 	shortCode := base64.RawStdEncoding.EncodeToString([]byte(strconv.FormatInt(id, 10)))
 
 	app.writeJSON(w, http.StatusOK, jsonResponse{

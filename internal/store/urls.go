@@ -37,3 +37,19 @@ func (s *URLStore) CreateShortURL(ctx context.Context, long_url string, checksum
 
 	return id, nil
 }
+
+func (s *URLStore) GetRedirectURL(ctx context.Context, checksum string) (string, error) {
+	query := `
+		SELECT long_url
+		FROM urls
+		WHERE checksum = $1
+	`
+
+	var redirectUrl string
+	err := s.db.QueryRowContext(ctx, query, checksum).Scan(&redirectUrl)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch redirect url from db: %w", err)
+	}
+
+	return redirectUrl, nil
+}

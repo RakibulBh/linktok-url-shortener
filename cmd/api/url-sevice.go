@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/base64"
+	"fmt"
 	"net/http"
 	"regexp"
 )
@@ -28,15 +31,27 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create a unique hash
+	h := md5.New()
+	h.Write([]byte(requestPayload.Link))
+	bs := h.Sum(nil)
+
+	// Encode the hash
+	uEnc := base64.RawURLEncoding.EncodeToString([]byte(bs))
+
 	app.writeJSON(w, http.StatusOK, jsonResponse{
 		Error:   false,
 		Message: "short URL created successfully",
-		Data:    requestPayload,
+		Data:    fmt.Sprintf("http://www.localhost%v/%v", app.config.addr, uEnc),
 	}, nil)
 }
 
-func (app *application) redirectToOriginalURL(w http.ResponseWriter, r *http.Request) {
+func (app *application) redirectToURL(w http.ResponseWriter, r *http.Request) {
 
+	app.writeJSON(w, http.StatusBadGateway, jsonResponse{
+		Error:   false,
+		Message: "Successfully redirected.",
+	}, nil)
 }
 
 func isValidURL(url string) bool {

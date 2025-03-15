@@ -12,9 +12,17 @@ type application struct {
 	config config
 }
 
+type dbConfig struct {
+	addr         string
+	maxOpenConns int
+	maxIdleConns int
+	maxIdleTime  string
+}
+
 type config struct {
 	addr   string
 	env    string
+	db     dbConfig
 	apiURL string
 }
 
@@ -29,6 +37,7 @@ func (app *application) serve() http.Handler {
 
 	r.Get("/health", app.healthCheckHandler)
 	r.Post("/create", app.createShortURL)
+	r.Get("/{code}", app.redirectToURL)
 
 	return r
 

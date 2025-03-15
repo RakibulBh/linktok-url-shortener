@@ -1,13 +1,14 @@
 package main
 
 import (
-	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/go-chi/chi"
 )
 
 type createURLRequest struct {
@@ -39,7 +40,7 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 	bs := h.Sum(nil)
 	checksumHex := fmt.Sprintf("%x", bs)
 
-	ctx := context.Background()
+	ctx := r.Context()
 
 	// Validate checksum
 	exists, err := app.store.URLS.ValidateChecksum(ctx, checksumHex)
@@ -50,7 +51,7 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 
 	// if a URL already exists then redirect to the redirectURL from db
 	if exists {
-		redirectUrl, err := app.store.URLS.GetRedirectURL(ctx, checksumHex)
+		redirectUrl, err := app.store.URLS.CheckChecksum(ctx, checksumHex)
 		if err != nil {
 			app.errorJSON(w, err, http.StatusInternalServerError, err.Error())
 		}
@@ -76,11 +77,31 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) redirectToURL(w http.ResponseWriter, r *http.Request) {
+	encodePram := chi.URLParam(r, "code")
 
-	app.writeJSON(w, http.StatusBadGateway, jsonResponse{
-		Error:   false,
-		Message: "Successfully redirected.",
-	}, nil)
+	fmt.Print(encodePram)
+
+	ctx := r.Context()
+
+	// Decode the code to find row ID.
+	decodedString, err := base64.RawStdEncoding.DecodeString(encodePram)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	code, err := strconv.ParseInt(string(decodedString), 10, 64)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusInternalServerError, "inval short code format")
+		return
+	}
+
+	redirectUrl, err := app.store.URLS.GetRedirectURL(ctx, code)
+	if err != nil {
+		app.errorJSON(w, err, http.StatusInternalServerError, "unable to fetch url.")
+	}
+
+	http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
 }
 
 func isValidURL(url string) bool {

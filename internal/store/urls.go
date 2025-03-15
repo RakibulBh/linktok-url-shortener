@@ -38,7 +38,7 @@ func (s *URLStore) CreateShortURL(ctx context.Context, long_url string, checksum
 	return id, nil
 }
 
-func (s *URLStore) GetRedirectURL(ctx context.Context, checksum string) (string, error) {
+func (s *URLStore) CheckChecksum(ctx context.Context, checksum string) (string, error) {
 	query := `
 		SELECT long_url
 		FROM urls
@@ -52,4 +52,21 @@ func (s *URLStore) GetRedirectURL(ctx context.Context, checksum string) (string,
 	}
 
 	return redirectUrl, nil
+}
+
+func (s *URLStore) GetRedirectURL(ctx context.Context, rowId int64) (string, error) {
+	query := `
+		SELECT long_url
+		FROM urls
+		WHERE id = $1
+	`
+
+	// Get the long url from the db
+	var longUrl string
+	err := s.db.QueryRowContext(ctx, query, rowId).Scan(&longUrl)
+	if err != nil {
+		return "", err
+	}
+
+	return longUrl, nil
 }

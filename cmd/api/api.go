@@ -37,7 +37,10 @@ func (app *application) serve() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	// Healthcheck
 	r.Get("/health", app.healthCheckHandler)
+
+	// Main endpoints
 	r.Post("/create", app.createShortURL)
 	r.Get("/{code}", app.redirectToURL)
 

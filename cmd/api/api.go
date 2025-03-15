@@ -4,12 +4,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/RakibulBh/linktok/internal/store"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
 type application struct {
 	config config
+	store  store.Storage
 }
 
 type dbConfig struct {

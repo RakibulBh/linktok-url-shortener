@@ -9,8 +9,11 @@ import (
 )
 
 func main() {
+	// Load env FIRST
+	loadEnv()
+
 	cfg := config{
-		addr: GetEnv("ADDR", ":8080"),
+		addr: GetEnv("PORT", ":8080"),
 		env:  GetEnv("ENV", "development"),
 		db: dbConfig{
 			addr:         GetEnv("DB_ADDR", "postgres://admin:adminpassword@localhost:5432/urls?sslmode=disable"),
@@ -20,6 +23,9 @@ func main() {
 		},
 		apiURL: GetEnv("API_URL", "http://localhost:8080"),
 	}
+
+	// log the environment
+	log.Printf("Environment: %s", cfg.env)
 
 	db, err := db.New(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {

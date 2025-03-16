@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Copy, Link2, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Copy, Link2, Sparkles } from "lucide-react";
 import { useResultStore } from "@/store/urlStore";
 
 const Result = () => {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi"
 )
@@ -49,13 +50,21 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if a URL already exists then redirect to the redirectURL from db
+	// if a URL already exists then just send the pre existing long url
 	if exists {
-		redirectUrl, err := app.store.URLS.CheckChecksum(ctx, checksumHex)
+		id, err := app.store.URLS.GetRowID(ctx, requestPayload.Link)
 		if err != nil {
 			app.errorJSON(w, err, http.StatusInternalServerError, err.Error())
+			return
 		}
-		http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
+
+		shortCode := base64.RawStdEncoding.EncodeToString([]byte(strconv.FormatInt(id, 10)))
+
+		app.writeJSON(w, http.StatusOK, jsonResponse{
+			Error:   false,
+			Message: "URL already exists",
+			Data:    fmt.Sprintf("http://www.localhost%v/%v", app.config.addr, shortCode),
+		}, nil)
 		return
 	}
 
@@ -79,8 +88,6 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 func (app *application) redirectToURL(w http.ResponseWriter, r *http.Request) {
 	encodePram := chi.URLParam(r, "code")
 
-	fmt.Print(encodePram)
-
 	ctx := r.Context()
 
 	// Decode the code to find row ID.
@@ -99,6 +106,11 @@ func (app *application) redirectToURL(w http.ResponseWriter, r *http.Request) {
 	redirectUrl, err := app.store.URLS.GetRedirectURL(ctx, code)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusInternalServerError, "unable to fetch url.")
+	}
+
+	// If redirect url doesnt have https:// or http:// then add it before the url
+	if !strings.HasPrefix(redirectUrl, "https://") && !strings.HasPrefix(redirectUrl, "http://") {
+		redirectUrl = "https://" + redirectUrl
 	}
 
 	http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)

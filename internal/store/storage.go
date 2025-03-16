@@ -13,6 +13,7 @@ type Storage struct {
 		CreateShortURL(ctx context.Context, long_url string, checksum string) (int64, error)
 		CheckChecksum(ctx context.Context, checksum string) (string, error)
 		GetRedirectURL(ctx context.Context, rowId int64) (string, error)
+		GetRowID(ctx context.Context, long_url string) (int64, error)
 	}
 }
 

@@ -70,3 +70,19 @@ func (s *URLStore) GetRedirectURL(ctx context.Context, rowId int64) (string, err
 
 	return longUrl, nil
 }
+
+func (s *URLStore) GetRowID(ctx context.Context, long_url string) (int64, error) {
+	query := `
+		SELECT id
+		FROM urls
+		WHERE long_url = $1
+	`
+
+	var id int64
+	err := s.db.QueryRowContext(ctx, query, long_url).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get row id: %w", err)
+	}
+
+	return id, nil
+}

@@ -40,8 +40,8 @@ func (app *application) serve() http.Handler {
 
 	// CORS
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST"},
+		AllowedOrigins:   []string{GetEnv("FRONTEND_URL", "http://localhost:3000")},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 		MaxAge:           300,

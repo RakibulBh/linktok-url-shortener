@@ -15,7 +15,7 @@ func main() {
 	}
 
 	cfg := config{
-		addr: GetEnv("PORT", ":8080"),
+		addr: ":" + GetEnv("PORT", "8080"),
 		env:  GetEnv("ENV", "development"),
 		db: dbConfig{
 			addr:         GetEnv("DB_ADDR", "postgres://admin:adminpassword@localhost:5432/urls?sslmode=disable"),

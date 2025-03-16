@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/RakibulBh/linktok/internal/db"
 	"github.com/RakibulBh/linktok/internal/store"
@@ -9,8 +10,9 @@ import (
 )
 
 func main() {
-	// Load env FIRST
-	loadEnv()
+	if os.Getenv("ENV") == "development" {
+		loadEnv()
+	}
 
 	cfg := config{
 		addr: GetEnv("PORT", ":8080"),

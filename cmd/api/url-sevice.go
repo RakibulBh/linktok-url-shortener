@@ -63,7 +63,7 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 		app.writeJSON(w, http.StatusOK, jsonResponse{
 			Error:   false,
 			Message: "URL already exists",
-			Data:    fmt.Sprintf("http://www.localhost%v/%v", app.config.addr, shortCode),
+			Data:    fmt.Sprintf("%v/%v", app.config.apiURL, shortCode),
 		}, nil)
 		return
 	}
@@ -81,7 +81,7 @@ func (app *application) createShortURL(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, jsonResponse{
 		Error:   false,
 		Message: "short URL created successfully",
-		Data:    fmt.Sprintf("http://www.localhost%v/%v", app.config.addr, shortCode),
+		Data:    fmt.Sprintf("%v/%v", app.config.apiURL, shortCode),
 	}, nil)
 }
 

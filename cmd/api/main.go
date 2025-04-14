@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
 	"github.com/RakibulBh/linktok/internal/db"
 	"github.com/RakibulBh/linktok/internal/store"
 	_ "github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -35,11 +37,23 @@ func main() {
 	}
 	defer db.Close()
 
+	// Init redis
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+		Protocol: 2,
+	})
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		panic(err)
+	}
+
 	store := store.NewStorage(db)
 
 	app := &application{
 		config: cfg,
 		store:  store,
+		redis:  client,
 	}
 
 	mux := app.serve()

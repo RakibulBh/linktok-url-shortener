@@ -8,10 +8,12 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/redis/go-redis/v9"
 )
 
 type application struct {
 	config config
+	redis  *redis.Client
 	store  store.Storage
 }
 

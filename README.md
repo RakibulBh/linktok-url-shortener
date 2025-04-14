@@ -46,6 +46,20 @@ Linktok is a minimalist URL shortener that combines reliability with elegant des
 - Base64 encoding/decoding
 - CORS-enabled API endpoints
 
-# License
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **Automated Testing**: All code changes are automatically tested
+- **Docker Integration**: Docker images are built and pushed to Docker Hub
+- **Deployment Pipeline**: Streamlined deployment process for production updates
+
+To configure the CI/CD pipeline:
+
+1. Add your Docker Hub credentials as repository secrets:
+   - `DOCKER_USERNAME`: Your Docker Hub username
+   - `DOCKER_PASSWORD`: Your Docker Hub access token or password
+
+# License
 
 [MIT License](LICENSE)
